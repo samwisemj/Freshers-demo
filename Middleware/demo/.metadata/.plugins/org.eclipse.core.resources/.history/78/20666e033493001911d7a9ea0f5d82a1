@@ -1,0 +1,311 @@
+#%RAML 1.0
+
+title: customer_item_order_exp
+
+
+/customer:
+  get:
+    queryParameters:
+      emailId:
+        description: Get Customer By Email Id
+        required: true
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+                [{
+                    "status": "Success",
+                    "description": "Get Profile"
+                  },
+                  {
+                    "customerId": 228,
+                    "customerEmail": "abc@abc.com",
+                    "customerName": "A",
+                    "customerSurname": "C"
+                  }]
+  /{id}:
+    get:
+      description: Get Customer By Customer Id
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                      [{
+                          "status": "Success",
+                          "description": "Get Profile"
+                        },
+                        {
+                          "customerId": 228,
+                          "customerUsername": "abc@abc.com",
+                          "customerEmail": "abc@abc.com",
+                          "customerName": "A",
+                          "customerSurname": "C"
+                        }
+                        ]
+    delete:
+      description: "Remove an existing Customer"
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                    {
+                    "status": "Success",
+                    "description": "Delete Profile"
+                    }
+                  
+                                   
+  post:
+    description: "Create a new Customer"
+    body:
+      application/json:
+        example: |
+                {
+                  "customerFirstName":"FName",
+                  "customerLastName":"Lname",
+                  "customerUsername":"abc@mail.com",
+                  "customerEmail":"abc@mail.com"
+                 }
+    responses:
+      201:
+         body:
+            application/json:
+              example: |
+                    {
+                    "status": "Success",
+                    "description": "Created Profile"
+                    }
+                  
+  put:
+    description: "Update a current Customer"
+    body:
+      application/json:
+        example: |
+          {
+              "customerId": 228,
+                  "customerFirstName":"FName",
+                  "customerLastName":"Lname"
+          }
+    responses:
+      200:
+         body:
+            application/json:
+              example: |
+                    {
+                    "status": "Success",
+                    "description": "Update Profile"
+                    }
+                    
+/item:
+  get:
+    queryParameters:
+      isAvailable:
+        description: Get Items by availability
+        required: true
+        type: boolean
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+                   [{
+                                "status": "Success",
+                                "description": "Get All Available Items"
+                              },
+                              {
+                                  "items": [{
+                                      "itemId": 1234,
+                                      "itemName": "CAB",
+                                      "itemCost": 4.99,
+                                      "isAvailable":true
+                                    },
+                                    {
+                                      "itemId": 1235,
+                                      "itemName": "CB",
+                                      "itemCost": 2.99,
+                                      "isAvailable":true
+                                    }]
+                              }
+                            ]
+  /{id}:
+    get:
+      description: Get Item By Item Id
+      responses:
+        200:
+          body:
+            application/json:
+              example: | 
+                        [{
+                                "status": "Success",
+                                "description": "Get Item by Id"
+                              },
+                        {
+                          "itemId": 1,
+                          "cost": 12.99,
+                          "name": "Banana",
+                          "available": true
+                        }]
+    delete:
+      description: "Remove an existing Item"
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                    {
+                    "status": "Success",
+                    "description": "Delete Item"
+                    }                          
+  post:
+    description: "Create a new item"
+    body:
+      application/json:
+        example: |
+                  {
+                    "cost": 12.99,
+                    "name": "Banana",
+                    "available": true
+                  }
+    responses:
+      201:
+         body:
+            application/json:
+              example: |
+                    {
+                    "status": "Success",
+                    "description": "Created Profile"
+                    }
+  put:
+    description: "Update a current Item"
+    body:
+      application/json:
+        example: |
+                  {
+                    "itemId":2,
+                    "cost": 12.99,
+                    "name": "Banana",
+                    "available": true
+                  }
+                  
+    responses:
+      200:
+         body:
+            application/json:
+              example: |
+                    {
+                    "status": "Success",
+                    "description": "Update Profile"
+                    }
+
+/order:
+  get:
+    queryParameters:
+      customerId:
+        description: Get Orders by customer id
+        required: true
+        type: integer
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+                      [{
+                          "status": "Success",
+                          "description": "Get Orders By CustomerId"
+                        },
+                        {
+                            "orderId": 123,
+                            "items": [{
+                                "itemId": 1234,
+                                "itemName": "CAB",
+                                "itemCost": 4.99,
+                                "itemCount": 2
+                              },
+                              {
+                                "itemId": 1235,
+                                "itemName": "CB",
+                                "itemCost": 2.99,
+                                "itemCount": 1
+                              }
+                      
+                            ]
+                          }, {
+                            "orderId": 124,
+                            "items": [{
+                                "itemId": 1234,
+                                "itemName": "CAB",
+                                "itemCost": 4.99,
+                                "itemCount": 5
+                              },
+                              {
+                                "itemId": 1235,
+                                "itemName": "CB",
+                                "itemCost": 2.99,
+                                "itemCount": 1
+                              }
+                            ]
+                          }
+                      ]   
+  /{id}:
+    get:
+      description: Get Order By Order Id
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                       [{
+                            "status": "Success",
+                            "description": "Get Orders By OrderId"
+                          },{
+                          "orderId": 123,
+                              "items": [{
+                                  "itemId": 1234,
+                                  "itemName": "CAB",
+                                  "itemCost": 4.99,
+                                  "itemCount": 2
+                                },
+                                {
+                                  "itemId": 1235,
+                                  "itemName": "CB",
+                                  "itemCost": 2.99,
+                                  "itemCount": 1
+                                }
+                              ]
+                          }
+                        
+                        ]
+    delete:
+      description: "Remove an existing Order"
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                    {
+                    "status": "Success",
+                    "description": "Cancelled Order"
+                    }                               
+  post:
+    description: "Create a new order"
+    body:
+      application/json:
+        example: |
+                  {
+                       "customerId": 1001,
+                        "items": {
+                            "1": 2,
+                            "3": 4
+                        }
+                  }
+    responses:
+      201:
+        body:
+            application/json:
+              example: |
+                    {
+                    "status": "Success",
+                    "description": "Created Order"
+                    }

@@ -1,0 +1,5 @@
+#Thu Jun 20 12:56:30 IST 2019
+encoding=UTF-8
+domain=default
+redeployment.enabled=true
+config.resources=global.xml,cust-exp-api-impl.xml,cust-exp.xml

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:cluster="http://www.mulesoft.org/schema/mule/ee/cluster" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:context="http://www.springframework.org/schema/context" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd">
+    <http:listener-config xmlns:http="http://www.mulesoft.org/schema/mule/http" name="order-sys-httpListenerConfig" host="0.0.0.0" port="8083" doc:name="HTTP Listener Configuration"/>
+    <apikit:config xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" name="order-sys-config" raml="order-sys.raml" consoleEnabled="false" doc:name="Router"/>
+    <context:property-placeholder location="app-${env}.properties"/>
+    <http:request-config name="HTTP_Request_Configuration_order" host="${order_host}" port="${order_port}" basePath="${order_base}" doc:name="HTTP Request Configuration"/>
+    <configuration defaultExceptionStrategy-ref="globalexceptionCatch_Exception_Strategy" doc:name="Configuration">
+        <http:config useTransportForUris="false"/>
+    </configuration>
+    <flow name="order-sys-main">
+        <http:listener xmlns:http="http://www.mulesoft.org/schema/mule/http" config-ref="order-sys-httpListenerConfig" path="/sys/*" doc:name="HTTP"/>
+        <set-property propertyName="Accept" value="#[message.inboundProperties.Accept]" doc:name="Property"/>
+        <set-property propertyName="Content-Type" value="#[message.inboundProperties.'content-type']" doc:name="Property"/>
+        <apikit:router xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" config-ref="order-sys-config" doc:name="APIkit Router"/>
+        <exception-strategy ref="order-sys-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
+    </flow>
+
+    <flow name="order-sys-console">
+        <http:listener xmlns:http="http://www.mulesoft.org/schema/mule/http" config-ref="order-sys-httpListenerConfig" path="/console/*" doc:name="HTTP"/>
+        <apikit:console xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" config-ref="order-sys-config" doc:name="APIkit Console"/>
+    </flow>
+    <flow name="delete:/order/{id}:order-sys-config">
+        <flow-ref name="delete:deleteByOrderId" doc:name="Flow Reference"/>
+
+    </flow>
+    <flow name="get:/order:order-sys-config">
+        <flow-ref name="get:getOrderByCustomerId" doc:name="Flow Reference"/>
+
+    </flow>
+    <flow name="get:/orders:order-sys-config">
+        <set-payload value="[&#xA;  {&#xA;              &quot;orderId&quot;: 5,&#xA;              &quot;customerId&quot;: 1001,&#xA;              &quot;items&quot;: {&#xA;                  &quot;1&quot;: 2,&#xA;                  &quot;3&quot;: 4&#xA;              }&#xA;          },{&#xA;              &quot;orderId&quot;: 5,&#xA;              &quot;customerId&quot;: 1001,&#xA;              &quot;items&quot;: {&#xA;                  &quot;1&quot;: 2,&#xA;                  &quot;3&quot;: 4&#xA;              }&#xA;          }&#xA;]" doc:name="Set Payload"/>
+    </flow>
+    <flow name="get:/order/{id}:order-sys-config">
+        <flow-ref name="get:getOrderByOrderId" doc:name="Flow Reference"/>
+
+    </flow>
+    <flow name="post:/order:order-sys-config">
+        <flow-ref name="post:createOrder" doc:name="Flow Reference"/>
+
+    </flow>
+    <apikit:mapping-exception-strategy xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" name="order-sys-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>

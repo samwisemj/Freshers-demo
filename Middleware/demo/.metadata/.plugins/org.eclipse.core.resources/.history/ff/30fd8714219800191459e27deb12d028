@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+    <http:request-config name="HTTP_Request_Configuration_order_sys" host="${order_host}" port="${order_port}" basePath="${order_base}" doc:name="HTTP Request Configuration"/>
+    <http:request-config name="HTTP_Request_Configuration_item_sys" host="${item_host}" port="${item_port}" basePath="${item_base}" doc:name="HTTP Request Configuration"/>
+    <http:request-builder name="Request_Builder_for_header" doc:name="Request Builder">
+        <http:header headerName="accept" value="application/json"/>
+        <http:header headerName="content-type" value="application/json"/>
+    </http:request-builder>
+    <flow name="get:/customerByEmail">
+        <http:request config-ref="HTTP_Request_Configuration_cust_sys" path="/" method="GET" doc:name="HTTP">
+            <http:request-builder>
+                <http:query-param paramName="emailId" value="#[message.inboundProperties.'http.query.params'.emailId]"/>
+            </http:request-builder>
+        </http:request>
+        <set-variable variableName="description" value="#[&quot;Get Profile by Email&quot;]" doc:name="Variable description"/>
+        <flow-ref name="Common_Flow_For_Response" doc:name="Flow Reference"/>
+        <exception-strategy ref="globalexceptionCatch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="get:/customerById">
+        <http:request config-ref="HTTP_Request_Configuration_cust_sys" path="/{id}" method="GET" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="#[message.inboundProperties.'http.uri.params'.id]"/>
+            </http:request-builder>
+        </http:request>
+        <set-variable variableName="description" value="#[&quot;Get Profile by Customer ID&quot;]" doc:name="Variable description"/>
+        <flow-ref name="Common_Flow_For_Response" doc:name="Flow Reference"/>
+    </flow>
+    <sub-flow name="Common_Flow_For_Response">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json skipNullOn="everywhere"
+---
+{
+	status:{
+	message:"Call was Successful",
+	description:flowVars.description
+	},
+	response:payload when payload !=null otherwise null
+}]]></dw:set-payload>
+        </dw:transform-message>
+    </sub-flow>
+    <flow name="get:/itemById">
+        <http:request config-ref="HTTP_Request_Configuration_item_sys" path="/{id}" method="GET" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="#[message.inboundProperties.'http.uri.params'.id]"/>
+            </http:request-builder>
+        </http:request>
+        <set-variable variableName="description" value="#[&quot;Item By Item ID&quot;]" doc:name="Variable description"/>
+        <flow-ref name="Common_Flow_For_Response" doc:name="Flow Reference"/>
+        <exception-strategy ref="globalexceptionCatch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="get:/itemByAvailibility">
+        <http:request config-ref="HTTP_Request_Configuration_item_sys" path="/" method="GET" doc:name="HTTP">
+            <http:request-builder>
+                <http:query-param paramName="isAvailable" value="#[message.inboundProperties.'http.query.params'.isAvailable]"/>
+                <http:header headerName="accept" value="application/json"/>
+                <http:header headerName="content-type" value="application/json"/>
+            </http:request-builder>
+        </http:request>
+        <set-variable variableName="description" value="#[&quot;Get Items by Availibility&quot;]" doc:name="Variable description"/>
+        <flow-ref name="Common_Flow_For_Response" doc:name="Flow Reference"/>
+        <exception-strategy ref="globalexceptionCatch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="get:/orderBycustomerId">
+        <http:request config-ref="HTTP_Request_Configuration_order_sys" path="/" method="GET" doc:name="HTTP">
+            <http:request-builder>
+                <http:query-param paramName="customerId" value="#[message.inboundProperties.'http.query.params'.customerId]"/>
+                <http:header headerName="accept" value="application/json"/>
+                <http:header headerName="content-type" value="application/json"/>
+            </http:request-builder>
+        </http:request>
+        <set-variable variableName="description" value="#[&quot;Order by Customer ID&quot;]" doc:name="Variable description"/>
+        <flow-ref name="Common_Flow_For_Response" doc:name="Flow Reference"/>
+        <exception-strategy ref="globalexceptionCatch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="get:/OrderById">
+        <http:request config-ref="HTTP_Request_Configuration_order_sys" path="/{id}" method="GET" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="#[message.inboundProperties.'http.uri.params'.id]"/>
+                <http:builder ref="Request_Builder_for_header"/>
+            </http:request-builder>
+        </http:request>
+        <set-variable variableName="description" value="#[&quot;Get Profile by Order ID&quot;]" doc:name="Variable description"/>
+        <flow-ref name="Common_Flow_For_Response" doc:name="Flow Reference"/>
+    </flow>
+    <flow name="post:/addNewCustomer">
+        <http:request config-ref="HTTP_Request_Configuration_cust_sys" path="/" method="POST" doc:name="HTTP">
+
+            <http:success-status-code-validator values="201"/>
+        </http:request>
+        <set-variable variableName="description" value="#[&quot;Add New Customer&quot;]" doc:name="Variable description"/>
+        <set-payload value="#[null]" doc:name="Set Null Payload"/>
+        <flow-ref name="Common_Flow_For_Response" doc:name="Flow Reference"/>
+    </flow>
+    <flow name="post:/addNewItem">
+        <logger level="INFO" doc:name="Logger"/>
+        <http:request config-ref="HTTP_Request_Configuration_item_sys" path="/" method="POST" doc:name="HTTP">
+            <http:success-status-code-validator values="201"/>
+        </http:request>
+        <set-variable variableName="description" value="#[&quot;Add New Items&quot;]" doc:name="Variable description"/>
+        <set-payload value="#[null]" doc:name="Set Null Payload"/>
+        <flow-ref name="Common_Flow_For_Response" doc:name="Flow Reference"/>
+    </flow>
+</mule>

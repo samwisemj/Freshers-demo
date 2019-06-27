@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+    <http:request-config name="HTTP_Request_Configuration1" host="localhost" port="8080" basePath="item" doc:name="HTTP Request Configuration"/>
+    <flow name="get:getOrderByCustomerId">
+        <logger level="INFO" doc:name="Logger"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/" method="GET" doc:name="HTTP">
+            <http:request-builder>
+                <http:query-param paramName="customerId" value="#[message.inboundProperties.'http.query.params'.customerId]"/>
+            </http:request-builder>
+        </http:request>
+        <flow-ref name="responseCreationFoOrderByCustId" doc:name="Flow Reference"/>
+        <exception-strategy ref="globalexceptionCatch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="post:createOrder">
+        <logger level="INFO" doc:name="Logger"/>
+        <byte-array-to-string-transformer doc:name="Byte Array to String"/>
+        <set-variable variableName="payload" value="#[payload]" doc:name="Set Variable Payload"/>
+        <flow-ref name="validateItems" doc:name="validate items"/>
+        <set-payload value="#[flowVars.payload]" mimeType="application/json" doc:name="Set Payload"/>
+        <logger level="INFO" doc:name="Logger"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/" method="POST" doc:name="HTTP"/>
+        <exception-strategy ref="globalexceptionCatch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <sub-flow name="validateItems">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <set-variable variableName="itemIds" value="#[payload.items.keySet()]" doc:name="Set Variable itemIds"/>
+        <set-variable variableName="customerId" value="#[payload.customerId]" doc:name="Set Variable CustomerId"/>
+        <foreach collection="#[flowVars.itemIds]" doc:name="For Each">
+            <logger level="INFO" doc:name="Logger"/>
+            <http:request config-ref="HTTP_Request_Configuration1" path="/{id}" method="GET" doc:name="HTTP">
+                <http:request-builder>
+                    <http:uri-param paramName="id" value="#[payload]"/>
+                    <http:header headerName="Accept" value="application/json"/>
+                    <http:header headerName="Content-Type" value="application/json"/>
+                </http:request-builder>
+            </http:request>
+            <dw:transform-message doc:name="Transform Message">
+                <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+            </dw:transform-message>
+            <choice doc:name="Choice">
+                <when expression="#[payload.available]">
+                    <logger level="INFO" doc:name="Logger"/>
+                </when>
+                <otherwise>
+                    <set-payload value="{&quot;message&quot;:&quot;You are trying to ad an item which is not available&quot;}" mimeType="application/json" doc:name="Set Payload"/>
+                    <expression-component doc:name="Expression"><![CDATA[throw new Exception("You are trying to ad an item which is not available");]]></expression-component>
+                </otherwise>
+            </choice>
+        </foreach>
+    </sub-flow>
+    <sub-flow name="responseCreationFoOrderByCustId">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <set-variable variableName="items" value="#[[]]" doc:name="Variable"/>
+        <set-variable variableName="itemDetails" value="#[[]]" doc:name="Variable"/>
+        <logger level="INFO" doc:name="Logger"/>
+        <foreach doc:name="For Each to Iterate each order">
+            <expression-component doc:name="Expression"><![CDATA[flowVars.items=payload.items.keySet()
+flowVars.order=payload]]></expression-component>
+            <set-variable variableName="order" value="#[payload]" doc:name="Variable Order"/>
+            <set-variable variableName="itemHash" value="#[payload.items]" doc:name="Variable itemHash"/>
+            <logger level="INFO" doc:name="Logger"/>
+            <foreach collection="#[payload.items.keySet()]" doc:name="For Each to Iterate each order">
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload as :number]]></dw:set-payload>
+                </dw:transform-message>
+                <logger level="INFO" doc:name="Logger"/>
+                <set-variable variableName="quantity" value="" doc:name="Set Variable quantity"/>
+                <expression-component doc:name="Expression"><![CDATA[flowVars.quantity=flowVars.itemHash.payload]]></expression-component>
+                <http:request config-ref="HTTP_Request_Configuration1" path="/{id}" method="GET" doc:name="Copy_of_HTTP">
+                    <http:request-builder>
+                        <http:uri-param paramName="id" value="#[payload.key]"/>
+                        <http:header headerName="Accept" value="application/json"/>
+                        <http:header headerName="Content-Type" value="application/json"/>
+                    </http:request-builder>
+                </http:request>
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	itemId:payload.itemId,
+	name:payload.name,
+	cost:payload.cost,
+	quantity:flowVars.quantity
+		
+}]]></dw:set-payload>
+                </dw:transform-message>
+                <expression-component doc:name="Expression"><![CDATA[flowVars.itemDetails.add(payload)]]></expression-component>
+                <logger level="INFO" doc:name="Logger"/>
+            </foreach>
+            <logger level="INFO" doc:name="Logger"/>
+        </foreach>
+    </sub-flow>
+    <flow name="get:getOrderByOrderId">
+        <logger level="INFO" doc:name="Logger"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/{id}" method="GET" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="#[message.inboundProperties.'http.uri.params'.id]"/>
+            </http:request-builder>
+        </http:request>
+        <exception-strategy ref="globalexceptionCatch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="delete:deleteByOrderId">
+        <logger level="INFO" doc:name="Logger"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/{id}" method="DELETE" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="#[message.inboundProperties.'http.uri.params'.id]"/>
+            </http:request-builder>
+        </http:request>
+        <exception-strategy ref="globalexceptionCatch_Exception_Strategy" doc:name="Exception Strategy"/>
+    </flow>
+</mule>

@@ -1,0 +1,3 @@
+cust_host:localhost
+cust_port:8081
+base_path:sys/customer

@@ -1,0 +1,96 @@
+#%RAML 1.0
+
+title: item_sys
+
+
+/item:
+  get:
+    queryParameters:
+      isAvailable:
+        description: Get Items by availability
+        required: true
+        type: boolean
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+                    [
+                      {
+                          "itemId": 1,
+                          "cost": 12.99,
+                          "name": "Banana",
+                          "available": true
+                      },
+                      {
+                          "itemId": 2,
+                          "cost": 24.99,
+                          "name": "Apple",
+                          "available": true
+                      }
+                    ]          
+  /{id}:
+    get:
+      description: Get Item By Item Id
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                        {
+                          "itemId": 1,
+                          "cost": 12.99,
+                          "name": "Banana",
+                          "available": true
+                        }
+    delete:
+      description: "Remove an existing Item"
+      responses:
+        200:                          
+  post:
+    description: "Create a new item"
+    body:
+      application/json:
+        example: |
+                  {
+                    "cost": 12.99,
+                    "name": "Banana",
+                    "available": true
+                  }
+    responses:
+      201:
+  put:
+    description: "Update a current Item"
+    body:
+      application/json:
+        example: |
+                  {
+                    "itemId":2,
+                    "cost": 12.99,
+                    "name": "Banana",
+                    "available": true
+                  }
+                  
+    responses:
+      200:
+/items:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              [
+                {
+                  "itemId": 1,
+                          "cost": 12.99,
+                          "name": "Banana",
+                          "available": true
+                 },
+                 {
+                   "itemId": 1,
+                    "cost": 12.99,
+                    "name": "Banana",
+                    "available": true
+                 }
+              ]

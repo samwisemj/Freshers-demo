@@ -1,0 +1,10 @@
+[{
+                    "status": "Success",
+                    "description": "Get Profile"
+                  },
+                  {
+                    "customerId": 228,
+                    "customerEmail": "abc@abc.com",
+                    "customerName": "A",
+                    "customerSurname": "C"
+                  }]

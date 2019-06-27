@@ -1,0 +1,94 @@
+#%RAML 1.0
+
+title: order_sys
+
+
+/order:
+  get:
+    queryParameters:
+      customerId:
+        description: Get Orders by customer id
+        required: true
+        type: integer
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+                    [
+                      {
+                            "orderId": 5,
+                            "customerId": 1001,
+                            "items": {
+                                "1": 2,
+                                "3": 4
+                            }
+                      },
+                      { 
+                            "orderId": 5,
+                            "customerId": 1001,
+                            "items": {
+                                "1": 2,
+                                "3": 4
+                            }
+                      }
+                    ]          
+  /{id}:
+    get:
+      description: Get Order By Order Id
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                        {
+                            "orderId": 5,
+                            "customerId": 1001,
+                            "items": {
+                                "1": 2,
+                                "3": 4
+                            }
+                        }
+    delete:
+      description: "Remove an existing Order"
+      responses:
+        200:                          
+  post:
+    description: "Create a new item"
+    body:
+      application/json:
+        example: |
+                  {
+                       "customerId": 1001,
+                        "items": {
+                            "1": 2,
+                            "3": 4
+                        }
+                  }
+    responses:
+      201:
+
+/orders:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              [
+                {
+                            "orderId": 5,
+                            "customerId": 1001,
+                            "items": {
+                                "1": 2,
+                                "3": 4
+                            }
+                        },{
+                            "orderId": 5,
+                            "customerId": 1001,
+                            "items": {
+                                "1": 2,
+                                "3": 4
+                            }
+                        }
+              ]

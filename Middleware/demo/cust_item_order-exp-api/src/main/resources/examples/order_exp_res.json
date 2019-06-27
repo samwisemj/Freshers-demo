@@ -1,0 +1,42 @@
+{
+	"status": {
+				"result":"success",
+			"description":"get order detail by customer id "
+					},
+	"response": {
+		"customerid": 1002,
+		"orders": [{
+				"orderId": 123,
+				"items": [{
+						"itemId": 1234,
+						"itemName": "CAB",
+						"itemCost": 4.99,
+						"itemCount": 2
+					},
+					{
+						"itemId": 1235,
+						"itemName": "CB",
+						"itemCost": 2.99,
+						"itemCount": 1
+					}
+				]
+			},
+			{
+				"orderId": 124,
+				"items": [{
+						"itemId": 1234,
+						"itemName": "CAB",
+						"itemCost": 4.99,
+						"itemCount": 5
+					},
+					{
+						"itemId": 1235,
+						"itemName": "CB",
+						"itemCost": 2.99,
+						"itemCount": 1
+					}
+				]
+			}
+		]
+	}
+}

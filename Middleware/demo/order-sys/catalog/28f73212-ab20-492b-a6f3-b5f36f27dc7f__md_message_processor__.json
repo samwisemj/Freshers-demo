@@ -1,0 +1,18 @@
+{
+    "inputMessageMetadata": {
+        "flowVariables": {
+            "order": {
+                "connectorName": "#_custom_mule_metadata_type_#",
+                "typeId": "order_collection_postTransformation"
+            }
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "order_collection_postTransformation"
+        }
+    },
+    "id": "28f73212-ab20-492b-a6f3-b5f36f27dc7f",
+    "version": "5.2.0.0"
+}

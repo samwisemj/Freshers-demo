@@ -1,0 +1,90 @@
+#%RAML 1.0
+
+title: customer_sys
+
+
+/customer:
+  get:
+    queryParameters:
+      emailId:
+        description: Get Customer By Email Id
+        required: true
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+                {
+                  "customerId": 228,
+                  "customerFirstName":"FName",
+                  "customerLastName":"Lname",
+                  "customerUsername":"abc@mail.com",
+                  "customerEmail":"abc@mail.com"
+                 }              
+  /{id}:
+    get:
+      description: Get Customer By Customer Id
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                {
+                  "customerId": 228,
+                  "customerFirstName":"FName",
+                  "customerLastName":"Lname",
+                  "customerUsername":"abc@mail.com",
+                  "customerEmail":"abc@mail.com"
+                 }
+    delete:
+      description: "Remove an existing Customer"
+      responses:
+        200:                          
+  post:
+    description: "Create a new Customer"
+    body:
+      application/json:
+        example: |
+                {
+                  "customerFirstName":"FName",
+                  "customerLastName":"Lname",
+                  "customerUsername":"abc@mail.com",
+                  "customerEmail":"abc@mail.com"
+                 }
+    responses:
+      201:
+  put:
+    description: "Update a current Customer"
+    body:
+      application/json:
+        example: |
+          {
+              "customerId": 228,
+                  "customerFirstName":"FName",
+                  "customerLastName":"Lname"
+          }
+    responses:
+      200:
+/customers:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              [
+                {
+                  "customerId":1,
+                  "customerFirstName":"FName",
+                  "customerLastName":"Lname",
+                  "customerUsername":"abc@mail.com",
+                  "customerEmail":"abc@mail.com"
+                 },
+                 {
+                   "customerId":2,
+                  "customerFirstName":"FName",
+                  "customerLastName":"Lname",
+                  "customerUsername":"abc@mail.com",
+                  "customerEmail":"abc@mail.com"
+                 }
+              ]

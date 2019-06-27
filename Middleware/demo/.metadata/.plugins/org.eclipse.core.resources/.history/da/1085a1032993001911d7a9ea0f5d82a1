@@ -1,0 +1,6 @@
+#** GENERATED CONTENT ** Mule Application Deployment Descriptor
+#Thu Jun 20 12:29:33 IST 2019
+redeployment.enabled=true
+encoding=UTF-8
+domain=default
+config.resources=cust-exp-api-impl.xml
